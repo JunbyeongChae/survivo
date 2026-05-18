@@ -1,0 +1,217 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+
+.wrap { padding: 1.5rem 0; }
+
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+.phase-label { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 1.25rem 0 0.5rem; padding-left: 0; }
+
+.grid { display: grid; grid-template-columns: 140px 1fr; gap: 4px 0; align-items: center; }
+
+.day-header { display: grid; grid-template-columns: 140px 1fr; margin-bottom: 8px; }
+.day-labels { display: flex; }
+.day-cell { font-size: 10px; color: var(--color-text-tertiary); text-align: center; flex: 1; }
+.day-cell.weekend { color: var(--color-text-danger, #e24b4a); }
+.day-cell.today { font-weight: 500; color: var(--color-text-primary); }
+
+.task-name { font-size: 12px; color: var(--color-text-secondary); padding-right: 8px; text-align: right; line-height: 1.4; }
+.bar-row { position: relative; height: 28px; display: flex; align-items: center; }
+.bar-bg { position: absolute; top: 4px; height: 20px; border-radius: 4px; }
+
+.divider { height: 1px; background: var(--color-border-tertiary); grid-column: 1 / -1; margin: 6px 0; }
+
+.sprint-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+
+.milestone { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+.milestone-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.summary-row { display: flex; gap: 12px; margin-top: 1.5rem; flex-wrap: wrap; }
+.summary-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; flex: 1; min-width: 120px; }
+.summary-card .num { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+.summary-card .lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+
+.today-line { position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--color-text-danger, #e24b4a); opacity: 0.6; z-index: 10; pointer-events: none; }
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">살아남을지도 2주 개발 일정 간트 차트</h2>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#7F77DD"></div>Sprint 1 — 기반 구축</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#1D9E75"></div>Sprint 2 — 핵심 기능</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#EF9F27"></div>Sprint 3 — 완성·정리</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--color-border-secondary); border: 0.5px solid var(--color-border-secondary)"></div>주말 (휴식 권장)</div>
+  </div>
+
+  <div id="gantt"></div>
+
+  <div class="summary-row">
+    <div class="summary-card">
+      <div class="num">14일</div>
+      <div class="lbl">전체 기간</div>
+    </div>
+    <div class="summary-card">
+      <div class="num">10일</div>
+      <div class="lbl">유효 개발일 (평일)</div>
+    </div>
+    <div class="summary-card">
+      <div class="num">25~30h</div>
+      <div class="lbl">총 예상 투입 시간</div>
+    </div>
+    <div class="summary-card">
+      <div class="num">5/31</div>
+      <div class="lbl">최종 마감</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DAYS = 14;
+const START = new Date(2026, 4, 18); // May 18
+
+const phases = [
+  {
+    label: 'Sprint 1 · 기반 구축 (D1~D4)',
+    color: '#7F77DD',
+    badge: 'background:#EEEDFE; color:#3C3489',
+    tasks: [
+      { name: 'TypeScript 타입 정의', start: 0, end: 1 },
+      { name: '라우팅·Zustand 스토어', start: 0, end: 1 },
+      { name: '헤더·푸터·공통 컴포넌트', start: 1, end: 2 },
+      { name: '로그인·회원가입 페이지', start: 2, end: 3 },
+      { name: '지도(카카오) 초기화', start: 2, end: 3 },
+    ]
+  },
+  {
+    label: 'Sprint 2 · 핵심 기능 (D5~D10)',
+    color: '#1D9E75',
+    badge: 'background:#E1F5EE; color:#085041',
+    tasks: [
+      { name: '주소 검색·자동완성', start: 4, end: 5 },
+      { name: '업종 선택·상가 유형 탭', start: 4, end: 5 },
+      { name: '동종업종 마커·반경 오버레이', start: 5, end: 7 },
+      { name: '생존 스코어 계산·카드', start: 6, end: 8 },
+      { name: '생활인구 차트 (Recharts)', start: 7, end: 9 },
+      { name: '임대 지표 카드', start: 8, end: 9 },
+    ]
+  },
+  {
+    label: 'Sprint 3 · 완성·정리 (D11~D14)',
+    color: '#EF9F27',
+    badge: 'background:#FAEEDA; color:#633806',
+    tasks: [
+      { name: '최근 검색 목록', start: 10, end: 11 },
+      { name: '로딩·에러·빈상태 처리', start: 10, end: 12 },
+      { name: '반응형 레이아웃 점검', start: 11, end: 12 },
+      { name: 'E2E 테스트 (Playwright)', start: 12, end: 13 },
+      { name: 'README·최종 검수', start: 13, end: 13 },
+    ]
+  }
+];
+
+const milestones = [
+  { day: 3, label: '지도+인증 동작 확인', color: '#7F77DD' },
+  { day: 9, label: '핵심 기능 완성', color: '#1D9E75' },
+  { day: 13, label: '최종 배포 준비 완료', color: '#EF9F27' },
+];
+
+function isWeekend(dayIdx) {
+  const d = new Date(START);
+  d.setDate(d.getDate() + dayIdx);
+  return d.getDay() === 0 || d.getDay() === 6;
+}
+
+function dayLabel(dayIdx) {
+  const d = new Date(START);
+  d.setDate(d.getDate() + dayIdx);
+  const mm = d.getMonth() + 1;
+  const dd = d.getDate();
+  return mm + '/' + dd;
+}
+
+const gantt = document.getElementById('gantt');
+
+// Day headers
+const headerDiv = document.createElement('div');
+headerDiv.className = 'day-header';
+headerDiv.innerHTML = '<div></div>';
+const labelsDiv = document.createElement('div');
+labelsDiv.className = 'day-labels';
+for (let i = 0; i < DAYS; i++) {
+  const cell = document.createElement('div');
+  cell.className = 'day-cell' + (isWeekend(i) ? ' weekend' : '') + (i === 0 ? ' today' : '');
+  cell.textContent = dayLabel(i);
+  labelsDiv.appendChild(cell);
+}
+headerDiv.appendChild(labelsDiv);
+gantt.appendChild(headerDiv);
+
+phases.forEach(phase => {
+  const phaseLabel = document.createElement('div');
+  phaseLabel.style.cssText = 'display:flex; align-items:center; gap:8px; margin: 1.25rem 0 0.5rem;';
+  phaseLabel.innerHTML = `<span class="sprint-badge" style="${phase.badge}">${phase.label}</span>`;
+  gantt.appendChild(phaseLabel);
+
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+
+  phase.tasks.forEach(task => {
+    const name = document.createElement('div');
+    name.className = 'task-name';
+    name.textContent = task.name;
+
+    const barRow = document.createElement('div');
+    barRow.className = 'bar-row';
+
+    // Weekend overlays
+    for (let i = 0; i < DAYS; i++) {
+      if (isWeekend(i)) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `position:absolute; top:0; bottom:0; left:${(i/DAYS)*100}%; width:${(1/DAYS)*100}%; background:var(--color-border-tertiary); opacity:0.35; border-radius:2px;`;
+        barRow.appendChild(overlay);
+      }
+    }
+
+    // Task bar — adjust for weekends (visual only)
+    const startPct = (task.start / DAYS) * 100;
+    const widthPct = ((task.end - task.start + 1) / DAYS) * 100;
+    const bar = document.createElement('div');
+    bar.className = 'bar-bg';
+    bar.style.cssText = `left:${startPct}%; width:${widthPct}%; background:${phase.color}; opacity:0.85;`;
+    barRow.appendChild(bar);
+
+    grid.appendChild(name);
+    grid.appendChild(barRow);
+  });
+
+  gantt.appendChild(grid);
+
+  // Milestones for this phase
+  const phaseMilestones = milestones.filter(m => {
+    const phaseIdx = phases.indexOf(phase);
+    if (phaseIdx === 0) return m.day <= 3;
+    if (phaseIdx === 1) return m.day >= 4 && m.day <= 9;
+    return m.day >= 10;
+  });
+
+  if (phaseMilestones.length) {
+    phaseMilestones.forEach(m => {
+      const row = document.createElement('div');
+      row.className = 'milestone';
+      row.style.cssText = 'padding-left: 140px; margin-top: 4px;';
+      const pct = (m.day / DAYS) * 100;
+      row.innerHTML = `<div class="milestone-dot" style="background:${m.color}; margin-left:${pct}%"></div><span>${dayLabel(m.day)} — ${m.label}</span>`;
+      gantt.appendChild(row);
+    });
+  }
+
+  const div = document.createElement('div');
+  div.className = 'divider';
+  gantt.appendChild(div);
+});
+</script>
