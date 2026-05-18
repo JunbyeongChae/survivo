@@ -24,6 +24,15 @@
 - `src/types/rent.types.ts` — RawRentEntry, RawRentData, StoreType('small'|'large'), RentInfo
 - `src/types/auth.types.ts` — User
 
+### 로그인·회원가입 페이지
+- `src/utils/authUtils.ts` — signUp / login / logout (localStorage 기반)
+- `src/hooks/useAuth.ts` — handleLogin(→ navigate '/'), handleSignUp(→ navigate '/login')
+- `src/components/Auth/LoginForm.tsx` — 이메일·비밀번호 검증, 인라인 에러 메시지
+- `src/components/Auth/SignUpForm.tsx` — 닉네임(2자↑)·이메일·비밀번호(8자↑) 검증
+- `src/pages/LoginPage.tsx` / `SignUpPage.tsx` — 로그인 상태 시 홈으로 리다이렉트
+- `index.html` — 카카오 SDK `autoload=false` 추가로 지도 노출 정상화 (사용자 수정)
+- `src/pages/HomePage.tsx` — aside `min-h-40` 수정 (사용자 수정)
+
 ### 지도(카카오) 초기화
 - `src/types/kakao.d.ts` — 카카오맵 SDK 전역 타입 선언 (Map, Marker, Circle, Geocoder 등)
 - `src/components/Map/MapView.tsx` — SDK load 콜백 내 초기화, 서울 시청 기본 중심, 서울 bounds 이탈 방지, searchStore 위치 변경 시 지도 이동
