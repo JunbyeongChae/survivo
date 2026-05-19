@@ -16,6 +16,52 @@
 
 ---
 
+## 2026-05-19
+
+### 생활인구 차트 — Recharts
+- `src/scripts/aggregatePopulation.mjs` — 485MB 원본 → 동코드×시간대 월평균 집계 스크립트
+- `public/data/peopleData/서울_생활인구_시간대평균.json` — 집계 결과 (424동 × 24시간, 64KB)
+- `src/types/store.types.ts` — SearchLocation에 `dongName?: string` 추가
+- `src/hooks/useAddressSearch.ts` — region_3depth_name → dongName 포함
+- `src/hooks/usePopulation.ts` — 매핑 파일로 동코드 룩업 → 시간대별 인구 fetch → analysisStore.population 업데이트 (파일 2종 메모리 캐시)
+- `src/components/Panel/PopulationChart.tsx` — Recharts BarChart, 최고 유동 시간대 인디고 강조
+- `src/components/Panel/ResultPanel.tsx` — PopulationChart 추가
+- `src/pages/HomePage.tsx` — usePopulation() 호출
+
+### 생존 스코어 계산·카드
+- `src/utils/scoreUtils.ts` — calcSurvivalScore: 밀집도(34)·유동인구(33)·임대료(33) 가중 합산, A/B/C/D 등급 산출
+- `src/store/analysisStore.ts` — clearResult 액션 추가
+- `src/hooks/useAnalysis.ts` — nearbyStores·population·rent 변화 감지 → 스코어 계산 → result 업데이트
+- `src/components/Panel/ScoreCard.tsx` — 스코어 숫자·등급·진행 바, 등급별 색상(A=초록/B=인디고/C=주황/D=빨강)
+- `src/components/Panel/DensityCard.tsx` — 동종업종 수·밀집도% 수치, 밀집 수준(낮음/보통/높음/매우높음)
+- `src/components/Panel/ResultPanel.tsx` — 검색 전/업종 미선택/로딩/결과 4가지 상태 처리
+- `src/pages/HomePage.tsx` — useAnalysis() 추가, ResultPanel 삽입
+
+### 동종업종 마커·반경 오버레이
+- `src/types/store.types.ts` — SearchLocation에 `gu: string` 추가
+- `src/hooks/useAddressSearch.ts` — region_2depth_name을 gu로 매핑
+- `src/store/analysisStore.ts` — nearbyStores: Store[] + setNearbyStores 추가
+- `src/utils/geoUtils.ts` — Haversine 거리 계산 함수
+- `src/hooks/useStoreFilter.ts` — 구별 JSON fetch → 반경 500m + 업종 필터 → 최대 300개 → analysisStore 업데이트
+- `src/components/Map/RadiusCircle.tsx` — 반경 500m 인디고 반투명 원 오버레이 (Kakao Circle)
+- `src/components/Map/StoreMarker.tsx` — 마커 + 클릭 InfoWindow (상호명·소분류), 단일 InfoWindow 유지
+- `src/components/Map/MapView.tsx` — mapInstance state 추가, RadiusCircle·StoreMarker 렌더링 통합
+- `src/pages/HomePage.tsx` — useStoreFilter() 호출
+
+### 업종 선택·상가 유형 탭
+- `src/constants/categories.ts` — 대분류 9개·소분류 전체 맵 상수 정의 (공공데이터 기반)
+- `src/components/Filter/StoreTypeTab.tsx` — 소규모/중대형 탭, filterStore.storeType 연결
+- `src/components/Filter/CategorySelect.tsx` — 대분류/소분류 2단계 드롭다운, 대분류 미선택 시 소분류 disabled
+- `src/pages/HomePage.tsx` — 우측 aside 패널 상단에 필터 영역 추가
+
+### 주소 검색·자동완성
+- `src/types/kakao.d.ts` — `type Status = 'OK' | 'ZERO_RESULT' | 'ERROR'` 추가 (services 네임스페이스 타입 수정)
+- `src/hooks/useAddressSearch.ts` — 카카오 Geocoder 호출·300ms 디바운스·서울 영역 필터링(위도 37.41~37.72 / 경도 126.73~127.19)·최대 5건 반환
+- `src/components/Search/SearchBar.tsx` — 지도 상단 중앙 절대 위치, 자동완성 드롭다운, ESC 닫기, Enter 선택, 외부 클릭 닫기, 서울 외 결과 없음 안내
+- `src/pages/HomePage.tsx` — SearchBar 삽입, 기존 안내 문구 제거
+
+---
+
 ## 2026-05-18
 
 ### TypeScript 타입 정의

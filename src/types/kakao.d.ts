@@ -111,6 +111,8 @@ declare namespace kakao.maps {
   }
 
   namespace services {
+    type Status = 'OK' | 'ZERO_RESULT' | 'ERROR'
+
     class Geocoder {
       addressSearch(
         address: string,
