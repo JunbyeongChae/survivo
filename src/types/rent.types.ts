@@ -22,5 +22,5 @@ export interface RentInfo {
   district: string
   storeType: StoreType
   vacancyRateByQuarter: Record<string, number>
-  rentPerSqmByQuarter: Record<string, number>
+  priceIndexByQuarter: Record<string, number>
 }

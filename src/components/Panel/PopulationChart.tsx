@@ -58,7 +58,7 @@ function PopulationChart({ population }: Props) {
             tickLine={false}
             axisLine={false}
             tickFormatter={formatCount}
-            width={40}
+            width={44}
           />
           <Tooltip
             formatter={(v: number) => [`${v.toLocaleString()}명`, '생활인구']}

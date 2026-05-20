@@ -4,12 +4,13 @@ import { useAnalysisStore } from '../../store/analysisStore'
 import ScoreCard from './ScoreCard'
 import DensityCard from './DensityCard'
 import PopulationChart from './PopulationChart'
+import RentCard from './RentCard'
 import SkeletonCard from '../common/SkeletonCard'
 
 function ResultPanel() {
   const currentLocation = useSearchStore((s) => s.currentLocation)
   const { categoryMain } = useFilterStore()
-  const { result, isLoading, population } = useAnalysisStore()
+  const { result, isLoading, population, rent } = useAnalysisStore()
 
   if (!currentLocation) {
     return (
@@ -51,6 +52,7 @@ function ResultPanel() {
         categoryMain={categoryMain}
       />
       <PopulationChart population={population} />
+      <RentCard rent={rent} />
     </div>
   )
 }
