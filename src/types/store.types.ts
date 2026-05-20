@@ -30,6 +30,8 @@ export interface SearchLocation {
   lat: number
   lng: number
   label: string
+  gu: string
+  dongName?: string
 }
 
 export type SurvivalGrade = 'A' | 'B' | 'C' | 'D'
